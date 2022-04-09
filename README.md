@@ -1,5 +1,7 @@
 # `depsize`
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/imjasonh/depsize.svg)](https://pkg.go.dev/github.com/imjasonh/depsize)
+
 This module provides methods to determine the size of a Go module and its dependencies.
 
 It does this by performing a HEAD request for a zip file the module's source
