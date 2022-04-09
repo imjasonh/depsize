@@ -14,7 +14,7 @@ The returned size is the compressed size according to the Go module proxy.
 
 No content is actually fetched. No gophers are harmed in the determination of this information.
 
-### Go package
+## Go package
 
 ```go
 import "github.com/imjasonh/depsize"
@@ -37,35 +37,39 @@ The version can be:
 - a semver release (e.g., `v0.1.2`)
 - a pseudoversion (e.g., `v0.1.3-0.20220110151055-d3adb33ffac3`)
 
-### CLI
+## CLI
 
-There's also a CLI, at `./cli`:
+There's also a CLI:
+
+```sh
+go install github.com/imjasonh/depsize@latest
+```
 
 You can pass both the module name and version:
 
 ```sh
-$ go run ./cli github.com/google/go-containerregistry v0.8.0
+$ depsize github.com/google/go-containerregistry v0.8.0
 1933721
 ```
 
 Or just the module name, and the latest version will be assumed:
 
 ```sh
-$ go run ./cli github.com/google/go-containerregistry
+$ depsize github.com/google/go-containerregistry
 1933721
 ```
 
 You can also request human readable byte sizes, with `-h`:
 
 ```sh
-$ go run ./cli -h github.com/google/go-containerregistry
+$ depsize -h github.com/google/go-containerregistry
 1.9 MB
 ```
 
 You can request a recursive lookup of a dep's transitive deps, with `-R`:
 
 ```sh
-$ go run ./cli -R github.com/google/go-containerregistry/pkg/authn/k8schain
+$ depsize -R github.com/google/go-containerregistry/pkg/authn/k8schain
 github.com/google/go-containerregistry/pkg/authn/k8schain v0.0.0-20220328141311-efc62d802606 80033
     github.com/Azure/azure-sdk-for-go v62.0.0+incompatible 67808264
     github.com/aws/aws-sdk-go-v2 v1.14.0 8954805
