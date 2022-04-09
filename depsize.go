@@ -27,18 +27,18 @@ func proxy() string {
 }
 
 // Size returns the size of the dep module, at the given version, in bytes.
-func Size(dep, version string) (int, error) {
-	dep = strings.ToLower(dep)
+func Size(mod, version string) (int, error) {
+	mod = strings.ToLower(mod)
 	proxy := proxy()
 
 	if version == "latest" {
 		var err error
-		version, err = Latest(dep)
+		version, err = Latest(mod)
 		if err != nil {
 			return 0, err
 		}
 	}
-	url := fmt.Sprintf("%s/%s/@v/%s.zip", proxy, dep, version)
+	url := fmt.Sprintf("%s/%s/@v/%s.zip", proxy, mod, version)
 	resp, err := http.Head(url)
 	if err != nil {
 		return 0, err
@@ -53,9 +53,9 @@ func Size(dep, version string) (int, error) {
 	return strconv.Atoi(l)
 }
 
-func Latest(dep string) (string, error) {
+func Latest(mod string) (string, error) {
 	proxy := proxy()
-	url := fmt.Sprintf("%s/%s/@latest", proxy, dep)
+	url := fmt.Sprintf("%s/%s/@latest", proxy, mod)
 	resp, err := http.Get(url)
 	if err != nil {
 		return "", err
@@ -72,22 +72,22 @@ func Latest(dep string) (string, error) {
 }
 
 type Dep struct {
-	Dep, Version string
+	Mod, Version string
 	Size         int
 }
 
 // Deps returns the transitive deps of a module.
-func Deps(dep, version string) ([]Dep, error) {
+func Deps(mod, version string) ([]Dep, error) {
 	proxy := proxy()
 	if version == "latest" {
 		var err error
-		version, err = Latest(dep)
+		version, err = Latest(mod)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	url := fmt.Sprintf("%s/%s/@v/%s.mod", proxy, dep, version)
+	url := fmt.Sprintf("%s/%s/@v/%s.mod", proxy, mod, version)
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, err
@@ -100,17 +100,17 @@ func Deps(dep, version string) ([]Dep, error) {
 	if err != nil {
 		return nil, fmt.Errorf("reading response: %w", err)
 	}
-	mod, err := modfile.Parse("", all, nil)
+	gomod, err := modfile.Parse("", all, nil)
 	if err != nil {
 		return nil, fmt.Errorf("parsing go.mod file: %w", err)
 	}
 
 	// Handle replaces, sort and return.
 	m := map[module.Version]struct{}{}
-	for _, r := range mod.Require {
+	for _, r := range gomod.Require {
 		m[r.Mod] = struct{}{}
 	}
-	for _, r := range mod.Replace {
+	for _, r := range gomod.Replace {
 		delete(m, r.Old)
 		if strings.HasPrefix(r.New.Path, "../") {
 			continue // Ignore local replaces
@@ -124,7 +124,7 @@ func Deps(dep, version string) ([]Dep, error) {
 			return nil, fmt.Errorf("getting size for %s %s: %w", k.Path, k.Version, err)
 		}
 		out = append(out, Dep{
-			Dep:     k.Path,
+			Mod:     k.Path,
 			Version: k.Version,
 			Size:    size,
 		})

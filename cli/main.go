@@ -53,9 +53,9 @@ func main() {
 		for _, d := range deps {
 			total += d.Size
 			if *human {
-				fmt.Println("   ", d.Dep, d.Version, humanize.Bytes(uint64(d.Size)))
+				fmt.Println("   ", d.Mod, d.Version, humanize.Bytes(uint64(d.Size)))
 			} else {
-				fmt.Println("   ", d.Dep, d.Version, d.Size)
+				fmt.Println("   ", d.Mod, d.Version, d.Size)
 			}
 		}
 		if *human {
